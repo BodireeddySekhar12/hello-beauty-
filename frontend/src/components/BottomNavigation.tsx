@@ -1,16 +1,13 @@
 import React from "react";
-import { Home, Grid, Heart, User, ShoppingCart } from "lucide-react";
+import { Home, Grid, ShoppingCart } from "lucide-react";
 
 interface BottomNavigationProps {
-  currentView: "browse" | "dashboard" | "admin";
+  currentView: "browse" | "admin";
   selectedCategory: string;
-  onSetCurrentView: (view: "browse" | "dashboard" | "admin") => void;
+  onSetCurrentView: (view: "browse" | "admin") => void;
   onSelectCategory: (category: string) => void;
   onOpenCart: () => void;
   cartItemsCount: number;
-  wishlistCount: number;
-  onViewWishlist: () => void;
-  onViewProfile: () => void;
 }
 
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
@@ -20,9 +17,6 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   onSelectCategory,
   onOpenCart,
   cartItemsCount,
-  wishlistCount,
-  onViewWishlist,
-  onViewProfile,
 }) => {
   const handleHomeClick = () => {
     onSetCurrentView("browse");
@@ -59,29 +53,6 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
       >
         <Grid className="w-5.5 h-5.5" />
         <span>Categories</span>
-      </button>
-
-      {/* Wishlist Button */}
-      <button 
-        onClick={onViewWishlist}
-        className={`bottom-nav-item ${currentView === "dashboard" && window.location.hash === "#wishlist" ? "active" : ""}`}
-      >
-        <Heart className="w-5.5 h-5.5" />
-        <span>Wishlist</span>
-        {wishlistCount > 0 && (
-          <span className="absolute top-0 right-4 bg-[#FF9F00] text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
-            {wishlistCount}
-          </span>
-        )}
-      </button>
-
-      {/* Account Button */}
-      <button 
-        onClick={onViewProfile}
-        className={`bottom-nav-item ${currentView === "dashboard" ? "active" : ""}`}
-      >
-        <User className="w-5.5 h-5.5" />
-        <span>Account</span>
       </button>
 
       {/* Cart Button */}

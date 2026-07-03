@@ -93,40 +93,8 @@ function App() {
   }, []);
 
   // Navigation tabs
-  const [currentView, setCurrentView] = useState<"browse" | "dashboard" | "admin">("browse");
-  const [dashboardTab, setDashboardTab] = useState<"profile" | "addresses" | "wishlist" | "orders">("profile");
-
-  // Sorting state
+  const [currentView, setCurrentView] = useState<"browse" | "admin">("browse");
   const [sortBy, setSortBy] = useState<"popularity" | "newest" | "price_low_high" | "price_high_low" | "rating">("popularity");
-
-  const handleViewWishlist = () => {
-    if (!customerToken) {
-      alert("Please log in to view your wishlist.");
-      setCurrentView("dashboard");
-      return;
-    }
-    setDashboardTab("wishlist");
-    setCurrentView("dashboard");
-  };
-
-  const handleViewOrders = () => {
-    if (!customerToken) {
-      alert("Please log in to view your order history.");
-      setCurrentView("dashboard");
-      return;
-    }
-    setDashboardTab("orders");
-    setCurrentView("dashboard");
-  };
-
-  const handleViewProfile = () => {
-    if (!customerToken) {
-      setCurrentView("dashboard");
-      return;
-    }
-    setDashboardTab("profile");
-    setCurrentView("dashboard");
-  };
   
   // Data states
   const [products, setProducts] = useState<Product[]>([]);
@@ -249,55 +217,7 @@ function App() {
     }
   };
 
-  // Lifted Customer Login state
-  const [customerToken, setCustomerToken] = useState<string | null>(localStorage.getItem("hb_cust_token"));
-  const [customerData, setCustomerData] = useState<any>(
-    JSON.parse(localStorage.getItem("hb_cust_data") || "null")
-  );
-  const [customerPhone, setCustomerPhone] = useState<string | null>(localStorage.getItem("hb_cust_phone"));
 
-  const handleCustomerLogin = (token: string, userData: any) => {
-    localStorage.setItem("hb_cust_token", token);
-    localStorage.setItem("hb_cust_data", JSON.stringify(userData));
-    localStorage.setItem("hb_cust_phone", userData.phone);
-    setCustomerToken(token);
-    setCustomerData(userData);
-    setCustomerPhone(userData.phone);
-    if (userData.wishlist) {
-      setFavorites(userData.wishlist);
-      localStorage.setItem("hb_favorites", JSON.stringify(userData.wishlist));
-    }
-  };
-
-  const handleCustomerLogout = () => {
-    localStorage.removeItem("hb_cust_token");
-    localStorage.removeItem("hb_cust_data");
-    localStorage.removeItem("hb_cust_phone");
-    localStorage.removeItem("hb_favorites");
-    setCustomerToken(null);
-    setCustomerData(null);
-    setCustomerPhone(null);
-    setFavorites([]);
-  };
-
-  // Sync profile/wishlist on token load
-  useEffect(() => {
-    if (customerToken) {
-      api.customerGetProfile(customerToken)
-        .then((profile) => {
-          setCustomerData(profile);
-          localStorage.setItem("hb_cust_data", JSON.stringify(profile));
-          if (profile.wishlist) {
-            setFavorites(profile.wishlist);
-            localStorage.setItem("hb_favorites", JSON.stringify(profile.wishlist));
-          }
-        })
-        .catch((err) => {
-          console.error("Session expired or invalid:", err);
-          handleCustomerLogout();
-        });
-    }
-  }, [customerToken]);
 
   // Load products, favorites, recently viewed, and cart on mount
   useEffect(() => {
@@ -400,33 +320,17 @@ function App() {
   };
 
   const handleToggleFavorite = (productId: number) => {
-    if (!customerToken) {
-      alert("Please log in to add items to your wishlist.");
-      setCurrentView("dashboard");
-      return;
-    }
     setFavorites((prev) => {
       const updated = prev.includes(productId)
         ? prev.filter((id) => id !== productId)
         : [...prev, productId];
       localStorage.setItem("hb_favorites", JSON.stringify(updated));
-      
-      if (customerToken) {
-        api.customerUpdateWishlist(customerToken, updated).catch((err) => {
-          console.error("Failed to sync wishlist to DB:", err);
-        });
-      }
       return updated;
     });
   };
 
   // Cart Operations
   const handleAddToCart = (product: Product, quantity: number, variations: Record<string, string>) => {
-    if (!customerToken) {
-      alert("Please log in to add items to your cart.");
-      setCurrentView("dashboard");
-      return;
-    }
     setCart((prev) => {
       const existingIdx = prev.findIndex(
         (item) => 
@@ -447,17 +351,8 @@ function App() {
   };
 
   const handleBuyNow = (product: Product, quantity: number, variations: Record<string, string>) => {
-    if (!customerToken) {
-      alert("Please log in to purchase products.");
-      setCurrentView("dashboard");
-      setActiveProduct(null);
-      return;
-    }
-    // Add to cart (since token is verified, this will succeed)
     handleAddToCart(product, quantity, variations);
-    // Close detail modal
     setActiveProduct(null);
-    // Open the cart sidebar
     setIsCartOpen(true);
   };
 
@@ -508,7 +403,7 @@ function App() {
       items: orderItems,
       total_price: cartTotalVal,
       coupon_code: couponCode
-    }, customerToken || undefined);
+    }, undefined);
     
     localStorage.setItem("hb_customer_name", name);
     localStorage.setItem("hb_customer_phone", phone);
@@ -535,7 +430,7 @@ function App() {
     setCart([]);
     localStorage.removeItem("hb_cart");
     setIsCartOpen(false);
-    setCurrentView("dashboard");
+    setCurrentView("browse");
     alert("Order created! Check your WhatsApp window to send details.");
   };
 
@@ -643,16 +538,10 @@ function App() {
         onOpenLocationModal={() => setIsLocationModalOpen(true)}
         searchQuery={searchQuery}
         onSetSearchQuery={setSearchQuery}
-        customerPhone={customerPhone}
-        onLogout={handleCustomerLogout}
         onOpenCart={() => setIsCartOpen(true)}
         cartItemsCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
-        wishlistCount={favorites.length}
-        onViewWishlist={handleViewWishlist}
-        onViewOrders={handleViewOrders}
-        onViewProfile={handleViewProfile}
       />
 
       {/* Main Content */}
@@ -1208,22 +1097,6 @@ function App() {
           </div>
         )}
 
-        {currentView === "dashboard" && (
-          <Dashboard 
-            products={products}
-            favorites={favorites}
-            onToggleFavorite={handleToggleFavorite}
-            onSelectProduct={handleOpenDetails}
-            customerToken={customerToken}
-            customerData={customerData}
-            onLogin={handleCustomerLogin}
-            onLogout={handleCustomerLogout}
-            onUpdateWishlist={setFavorites}
-            onAddToCart={handleAddToCart}
-            initialTab={dashboardTab}
-          />
-        )}
-
         {currentView === "admin" && (
           <Suspense fallback={
             <div className="flex items-center justify-center min-h-[50vh]">
@@ -1243,8 +1116,6 @@ function App() {
         onUpdateCartQuantity={handleUpdateCartQuantity}
         onRemoveFromCart={handleRemoveFromCart}
         onCheckoutSubmit={handleCheckoutSubmit}
-        customerToken={customerToken}
-        customerData={customerData}
       />
 
       {/* Location Picker Modal */}
@@ -1263,9 +1134,6 @@ function App() {
         onSelectCategory={setSelectedCategory}
         onOpenCart={() => setIsCartOpen(true)}
         cartItemsCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
-        wishlistCount={favorites.length}
-        onViewWishlist={handleViewWishlist}
-        onViewProfile={handleViewProfile}
       />
 
       {/* Floating details overlay panel */}

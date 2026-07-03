@@ -8,22 +8,16 @@ import logoJewelry from "../assets/logo_page_4.webp";
 import logoStudio from "../assets/logo_page_5.webp";
 
 interface HeaderProps {
-  currentView: "browse" | "dashboard" | "admin";
-  onSetCurrentView: (view: "browse" | "dashboard" | "admin") => void;
+  currentView: "browse" | "admin";
+  onSetCurrentView: (view: "browse" | "admin") => void;
   locationPincode: string;
   onOpenLocationModal: () => void;
   searchQuery: string;
   onSetSearchQuery: (query: string) => void;
-  customerPhone: string | null;
-  onLogout: () => void;
   onOpenCart: () => void;
   cartItemsCount: number;
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
-  wishlistCount: number;
-  onViewWishlist: () => void;
-  onViewOrders: () => void;
-  onViewProfile: () => void;
 }
 
 const DEPARTMENTS = [
@@ -494,174 +488,18 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
           
-          {/* Wishlist Link */}
+          {/* Staff Portal Link */}
           <button
-            onClick={onViewWishlist}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-600 hover:text-[#2874F0] transition-all relative"
+            onClick={() => onSetCurrentView("admin")}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all ${
+              currentView === "admin" 
+                ? "text-[#2874F0] bg-gray-100" 
+                : "text-gray-600 hover:text-[#2874F0]"
+            }`}
           >
-            <Heart className="w-4.5 h-4.5 text-[#FF9F00] fill-[#FF9F00]" />
-            <span>Wishlist</span>
-            {wishlistCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#FF9F00] text-white text-[8px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white">
-                {wishlistCount}
-              </span>
-            )}
+            <Lock className="w-4 h-4 text-gray-400" />
+            <span>Staff Portal</span>
           </button>
-
-          <div 
-            className="relative"
-            onMouseEnter={() => setIsAccountDropdownOpen(true)}
-            onMouseLeave={() => setIsAccountDropdownOpen(false)}
-          >
-            <button
-              onClick={() => {
-                onSetCurrentView("dashboard");
-                setIsAccountDropdownOpen(false);
-              }}
-              className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${
-                currentView === "dashboard" 
-                  ? "text-[#2874F0] bg-gray-100" 
-                  : "text-gray-600 hover:text-[#2874F0]"
-              }`}
-            >
-              <User className="w-4 h-4" />
-              <span>{customerPhone ? "Account" : "Login"}</span>
-              <svg 
-                className={`w-3 h-3 ml-0.5 transition-transform duration-300 ${isAccountDropdownOpen ? "rotate-180" : ""}`} 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {/* Dropdown overlay menu */}
-            {isAccountDropdownOpen && (
-              <div 
-                className="absolute right-0 mt-1.5 w-56 bg-white text-gray-800 rounded-xl shadow-focus border border-gray-200 py-3.5 z-50 animate-fade-in font-sans"
-                style={{ top: "100%" }}
-              >
-                {/* Triangle pointer */}
-                <div className="absolute -top-1.5 right-6 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 z-10" />
-                
-                {customerPhone ? (
-                  <>
-                    <div className="px-4 pb-2 border-b border-gray-100 mb-2">
-                      <p className="text-[9px] uppercase tracking-wider text-gray-400 font-bold leading-none">Welcome</p>
-                      <p className="text-xs font-bold text-gray-800 mt-1 truncate">+91 {customerPhone}</p>
-                    </div>
-                    
-                    <button
-                      onClick={() => {
-                        onViewProfile();
-                        setIsAccountDropdownOpen(false);
-                      }}
-                      className="w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-all"
-                    >
-                      <User className="w-4 h-4 text-[#2874F0]" />
-                      <span>My Profile</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        onViewOrders();
-                        setIsAccountDropdownOpen(false);
-                      }}
-                      className="w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-all"
-                    >
-                      <ClipboardList className="w-4 h-4 text-[#2874F0]" />
-                      <span>Orders</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        onViewWishlist();
-                        setIsAccountDropdownOpen(false);
-                      }}
-                      className="w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-all"
-                    >
-                      <Heart className="w-4 h-4 text-[#FF9F00] fill-[#FF9F00]" />
-                      <span>Wishlist</span>
-                    </button>
-
-                    <div className="border-t border-gray-100 mt-2 pt-2">
-                      <button
-                        onClick={() => {
-                          onSetCurrentView("admin");
-                          setIsAccountDropdownOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-xs text-gray-500 hover:text-[#2874F0] hover:bg-gray-50 flex items-center gap-2.5 transition-all font-semibold"
-                      >
-                        <Lock className="w-4 h-4 text-gray-400" />
-                        <span>Staff Portal (Admin)</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          onLogout();
-                          setIsAccountDropdownOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-xs text-[#FF9F00] font-bold hover:bg-red-50 flex items-center gap-2.5 transition-all mt-1"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="px-4 pb-2.5 border-b border-gray-100 flex items-center justify-between gap-4 mb-2">
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">New customer?</span>
-                      <button
-                        onClick={() => {
-                          onSetCurrentView("dashboard");
-                          setIsAccountDropdownOpen(false);
-                        }}
-                        className="text-[#2874F0] hover:underline text-xs font-bold"
-                      >
-                        Sign Up
-                      </button>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        onViewProfile();
-                        setIsAccountDropdownOpen(false);
-                      }}
-                      className="w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-all font-medium"
-                    >
-                      <User className="w-4 h-4 text-[#2874F0]" />
-                      <span>My Profile</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        onViewWishlist();
-                        setIsAccountDropdownOpen(false);
-                      }}
-                      className="w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-all font-medium"
-                    >
-                      <Heart className="w-4 h-4 text-[#FF9F00]" />
-                      <span>Wishlist</span>
-                    </button>
-
-                    <div className="border-t border-gray-100 mt-2 pt-2">
-                      <button
-                        onClick={() => {
-                          onSetCurrentView("admin");
-                          setIsAccountDropdownOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-xs text-gray-500 hover:text-[#2874F0] hover:bg-gray-50 flex items-center gap-2.5 transition-all font-semibold"
-                      >
-                        <Lock className="w-4 h-4 text-gray-400" />
-                        <span>Staff Portal (Admin)</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
 
           {/* Cart Button with Count Badge */}
           <button
