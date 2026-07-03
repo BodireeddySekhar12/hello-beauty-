@@ -1,7 +1,11 @@
 export const getApiUrl = (path: string): string => {
   const protocol = window.location.protocol;
+  let hostname = window.location.hostname;
+  if (hostname === "localhost") {
+    hostname = "127.0.0.1";
+  }
   const host = (window.location.port && window.location.port !== "8000")
-    ? `${window.location.hostname}:8000`
+    ? `${hostname}:8000`
     : window.location.host;
   return `${protocol}//${host}${path}`;
 };

@@ -13,8 +13,12 @@ class WebSocketService {
   constructor() {
     // Dynamically resolve WebSocket address based on running environment
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    let hostname = window.location.hostname;
+    if (hostname === "localhost") {
+      hostname = "127.0.0.1";
+    }
     const host = (window.location.port && window.location.port !== "8000")
-      ? `${window.location.hostname}:8000`
+      ? `${hostname}:8000`
       : window.location.host;
     this.url = `${protocol}//${host}/ws`;
   }

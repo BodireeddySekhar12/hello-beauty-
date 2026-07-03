@@ -49,7 +49,7 @@ export const AdminConsole: React.FC = () => {
   // Form states
   const [editingId, setEditingId] = useState<number | null>(null);
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("Chains");
+  const [category, setCategory] = useState("Makeup");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
@@ -273,7 +273,7 @@ export const AdminConsole: React.FC = () => {
   const resetForm = () => {
     setEditingId(null);
     setName("");
-    setCategory("Chains");
+    setCategory("Makeup");
     setPrice("");
     setStock("");
     setDescription("");
@@ -487,9 +487,12 @@ export const AdminConsole: React.FC = () => {
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full p-3 border border-gray-200 rounded-xl text-xs focus:ring-1 focus:ring-[#C5A059] focus:border-[#C5A059] outline-none bg-white transition-all"
                   >
-                    <option value="Chains">Chains</option>
-                    <option value="Apparel">Apparel</option>
                     <option value="Makeup">Makeup</option>
+                    <option value="Dresses">Dresses</option>
+                    <option value="Jewelry">Jewelry</option>
+                    <option value="Handbags">Handbags</option>
+                    <option value="Footwear">Footwear</option>
+                    <option value="Skincare">Skincare</option>
                   </select>
                 </div>
 
