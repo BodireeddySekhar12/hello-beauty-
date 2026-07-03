@@ -14,7 +14,6 @@ import { ProductCard } from "./components/ProductCard";
 import { CartSidebar } from "./components/CartSidebar";
 import { ProductDetails } from "./components/ProductDetails";
 const AdminConsole = lazy(() => import("./components/AdminConsole").then(m => ({ default: m.AdminConsole })));
-const SellerConsole = lazy(() => import("./components/SellerConsole").then(m => ({ default: m.SellerConsole })));
 import { Dashboard } from "./components/Dashboard";
 
 interface Product {
@@ -94,7 +93,7 @@ function App() {
   }, []);
 
   // Navigation tabs
-  const [currentView, setCurrentView] = useState<"browse" | "dashboard" | "admin" | "seller">("browse");
+  const [currentView, setCurrentView] = useState<"browse" | "dashboard" | "admin">("browse");
   const [dashboardTab, setDashboardTab] = useState<"profile" | "addresses" | "wishlist" | "orders">("profile");
 
   // Sorting state
@@ -1232,16 +1231,6 @@ function App() {
             </div>
           }>
             <AdminConsole />
-          </Suspense>
-        )}
-
-        {currentView === "seller" && (
-          <Suspense fallback={
-            <div className="flex items-center justify-center min-h-[50vh]">
-              <div className="w-8 h-8 border-4 border-[#2874F0] border-t-transparent rounded-full animate-spin" />
-            </div>
-          }>
-            <SellerConsole />
           </Suspense>
         )}
       </main>

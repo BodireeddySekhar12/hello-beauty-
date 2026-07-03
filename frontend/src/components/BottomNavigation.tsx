@@ -2,9 +2,9 @@ import React from "react";
 import { Home, Grid, Heart, User, ShoppingCart } from "lucide-react";
 
 interface BottomNavigationProps {
-  currentView: "browse" | "dashboard" | "admin" | "seller";
+  currentView: "browse" | "dashboard" | "admin";
   selectedCategory: string;
-  onSetCurrentView: (view: "browse" | "dashboard" | "admin" | "seller") => void;
+  onSetCurrentView: (view: "browse" | "dashboard" | "admin") => void;
   onSelectCategory: (category: string) => void;
   onOpenCart: () => void;
   cartItemsCount: number;

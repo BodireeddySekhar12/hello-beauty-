@@ -8,8 +8,8 @@ import logoJewelry from "../assets/logo_page_4.webp";
 import logoStudio from "../assets/logo_page_5.webp";
 
 interface HeaderProps {
-  currentView: "browse" | "dashboard" | "admin" | "seller";
-  onSetCurrentView: (view: "browse" | "dashboard" | "admin" | "seller") => void;
+  currentView: "browse" | "dashboard" | "admin";
+  onSetCurrentView: (view: "browse" | "dashboard" | "admin") => void;
   locationPincode: string;
   onOpenLocationModal: () => void;
   searchQuery: string;
@@ -662,19 +662,6 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
-
-          {/* Become Seller */}
-          <button
-            onClick={() => onSetCurrentView("seller")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all ${
-              currentView === "seller" 
-                ? "text-[#2874F0] bg-gray-100" 
-                : "text-gray-600 hover:text-[#2874F0]"
-            }`}
-          >
-            <Store className="w-4 h-4" />
-            <span>Become Seller</span>
-          </button>
 
           {/* Cart Button with Count Badge */}
           <button
