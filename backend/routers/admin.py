@@ -18,17 +18,7 @@ os.makedirs("uploads", exist_ok=True)
 
 @router.post("/auth/login", response_model=TokenResponse)
 def login(admin_login: AdminLogin, db: Session = Depends(get_db)):
-    # 1. Look up user in database
-    user = db.query(DBUser).filter(DBUser.username == admin_login.username).first()
-    if user:
-        # Check role
-        role = db.query(DBRole).filter(DBRole.id == user.role_id).first()
-        if role and role.name in ["ADMIN", "SELLER"]:
-            if verify_password(admin_login.password, user.password_hash):
-                token = create_access_token(data={"sub": user.username, "role": role.name})
-                return {"access_token": token, "token_type": "bearer", "role": role.name}
-
-    # 2. Dynamic auto-seed fallback for setup convenience
+    # 1. First, check config credentials to guarantee they always work
     if admin_login.username == ADMIN_USERNAME and admin_login.password == ADMIN_PASSWORD:
         admin_role = db.query(DBRole).filter(DBRole.name == "ADMIN").first()
         if not admin_role:
@@ -39,7 +29,8 @@ def login(admin_login: AdminLogin, db: Session = Depends(get_db)):
             db.commit()
             admin_role = db.query(DBRole).filter(DBRole.name == "ADMIN").first()
 
-        if not user:
+        existing_user = db.query(DBUser).filter(DBUser.username == ADMIN_USERNAME).first()
+        if not existing_user:
             user = DBUser(
                 username=ADMIN_USERNAME,
                 name="Store Administrator",
@@ -51,9 +42,23 @@ def login(admin_login: AdminLogin, db: Session = Depends(get_db)):
             )
             db.add(user)
             db.commit()
+        else:
+            # Sync password hash in DB with config credentials
+            existing_user.password_hash = hash_password(ADMIN_PASSWORD)
+            db.commit()
 
         token = create_access_token(data={"sub": ADMIN_USERNAME, "role": "ADMIN"})
         return {"access_token": token, "token_type": "bearer", "role": "ADMIN"}
+
+    # 2. Otherwise look up other accounts in database
+    user = db.query(DBUser).filter(DBUser.username == admin_login.username).first()
+    if user:
+        # Check role
+        role = db.query(DBRole).filter(DBRole.id == user.role_id).first()
+        if role and role.name in ["ADMIN", "SELLER"]:
+            if verify_password(admin_login.password, user.password_hash):
+                token = create_access_token(data={"sub": user.username, "role": role.name})
+                return {"access_token": token, "token_type": "bearer", "role": role.name}
 
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
